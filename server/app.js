@@ -3,7 +3,7 @@ var DEBUG = require('debug')('app');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 80;
 
 var express = require("express");
 var http = require("http");
