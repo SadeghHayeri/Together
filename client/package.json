@@ -1,5 +1,9 @@
 {
-  "name"    : "your-app",
-  "version" : "0.1.0",
-  "main"    : "main.js"
+  "name": "your-app",
+  "version": "0.1.0",
+  "main": "main.js",
+  "dependencies": {
+    "request": "^2.79.0",
+    "request-progress": "^3.0.0"
+  }
 }
