@@ -15,30 +15,31 @@ class Downloader {
 
   start() {
 
-    console.log(Downloader.options);
+    if (!fs.existsSync('Downloads'))
+      fs.mkdirSync('Downloads');
 
-    if (!fs.existsSync(Downloader.options.folderName))
-      fs.mkdirSync(Downloader.options.folderName);
+
+    if (!fs.existsSync('Downloads/' + Downloader.options.folderName))
+      fs.mkdirSync('Downloads/' + Downloader.options.folderName);
 
     progress( request(Downloader.options), {
       throttle: 100,
       delay: 0
     })
 
-    .on('progress', function (state) {
+    .on('progress', (state) => {
       state.begin = true;
       Downloader.currStatus = state;
-      console.log(Downloader.currStatus);
     })
-    .on('error', function (err) {
+    .on('error', (err) => {
       console.log(err);
       // TODO: handle error
     })
-    .on('end', function () {
+    .on('end', () => {
         Downloader.callback(true);
     })
 
-    .pipe(fs.createWriteStream(Downloader.options.folderName + "/" + Downloader.options.fileName));
+    .pipe(fs.createWriteStream('Downloads/' + Downloader.options.folderName + "/" + Downloader.options.fileName));
 
   }
 
@@ -52,13 +53,3 @@ Downloader.callback = {};
 Downloader.currStatus = {begin: false};
 
 module.exports = Downloader;
-
-// var newDownload = new Downloader('http://cdn.p30download.com/?b=p30dl-mobile&f=ProCapture.v2.0.6_p30download.com.apk',
-// 0,
-// 2000000,
-// 'Downloads',
-// 3,
-// function() {
-//   console.log('yess!');
-// });
-// newDownload.start();
