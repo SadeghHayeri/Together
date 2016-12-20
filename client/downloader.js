@@ -62,12 +62,3 @@ module.exports = Downloader;
 //   console.log('yess!');
 // });
 // newDownload.start();
-
-
-// function callback(error, response, body) {
-//   if (!error && response.statusCode == 206) {
-//   }
-//   console.log(response.headers['content-length']);
-// }
-// request.head(options, callback)
-// // progress( request.head(options, callback) );
