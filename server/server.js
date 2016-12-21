@@ -49,7 +49,6 @@ function getNewChunk() {
         partNum: downloadList[i].lastPart,
         startRange:downloadList[i].lastPart * CHUNKSIZE,
         endRange: downloadList[i].lastPart * CHUNKSIZE + packetSize - ( (downloadList[i].needToDownload>CHUNKSIZE)? 1 : 0 ),
-        complete: false,
         receive: false
       });
 
@@ -92,7 +91,7 @@ function startServer( socketPort, TransmitterPort ) {
   new Transmitter(TransmitterPort, CHUNKSIZE);
 }
 
-startServer(8888, 9999);
+startServer(5555, 6666);
 
 newDownload('http://googleshirazi.com/Content/images/googlelogo_color_272x92dp.png?v=3.5');
 newDownload('http://hdwallpapershdpics.com/wp-content/uploads/2016/05/stunning-full-hd.jpeg');

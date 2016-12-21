@@ -42,4 +42,4 @@ function start( ip, socketPort, TransmitterPort ) {
   transmitter = new Transmitter({ ip: ip, port: TransmitterPort });
 }
 
-start( 'http://localhost', 8888, 9999);
+start( 'http://localhost', 5555, 6666);

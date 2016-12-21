@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "main": "main.js",
   "dependencies": {
+    "progress-stream": "^1.2.0",
     "request": "^2.79.0",
     "socket.io": "^1.7.2",
     "socket.io-client": "^1.7.2",
