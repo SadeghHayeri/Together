@@ -4,9 +4,11 @@ var ss = require('socket.io-stream');
 var path = require('path');
 var fs = require('fs');
 
+var progress = require('progress-stream');
+
 class Transmitter {
 
-  constructor( portNum ) {
+  constructor( portNum, CHUNKSIZE ) {
 
     var io = socket.listen(portNum);
     io.on('connection', function(socket) {
@@ -22,7 +24,18 @@ class Transmitter {
         if (!fs.existsSync('Downloads/' + data.fileName))
           fs.mkdirSync('Downloads/' + data.fileName);
 
-        stream.pipe(fs.createWriteStream(`Downloads/${data.fileName}/${data.fileName}.part${data.partNum}`));
+
+        var str = progress({
+          length: CHUNKSIZE,
+        });
+        str.on('progress', function(progress) {
+          progress.begin = true;
+          Transmitter.status = progress;
+        });
+
+        stream.pipe(str)
+              .pipe(fs.createWriteStream(`Downloads/${data.fileName}/${data.fileName}.part${data.partNum}`));
+
       });
 
     });
@@ -30,8 +43,12 @@ class Transmitter {
 
   }
 
+  getStatus() {
+    return Transmitter.status;
+  }
+}
+Transmitter.status = {
+  begin: false
 }
 
 module.exports = Transmitter;
-
-var tt = new Transmitter(9090);

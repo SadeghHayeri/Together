@@ -2,6 +2,7 @@
 var request = require('request');
 var http = require('http');
 var io = require('socket.io');
+var Transmitter = require('./transmitter.js');
 
 const CHUNKSIZE = 1048576;
 var downloadList = [];
@@ -15,7 +16,9 @@ function newDownload( url ) {
         url: url,
         size: response.headers['content-length'],
         needToDownload: response.headers['content-length'],
-        lastPart: 0
+        lastPart: 0,
+        partsCount: Math.ceil( response.headers['content-length'] / CHUNKSIZE ),
+        parts: []
       };
       downloadList.push( download );
     } else {
@@ -42,8 +45,15 @@ function getNewChunk() {
       downloadList[i].needToDownload -= packetSize;
       downloadList[i].lastPart++;
 
-      return chunk;
+      downloadList[i].parts.push({
+        partNum: downloadList[i].lastPart,
+        startRange:downloadList[i].lastPart * CHUNKSIZE,
+        endRange: downloadList[i].lastPart * CHUNKSIZE + packetSize - ( (downloadList[i].needToDownload>CHUNKSIZE)? 1 : 0 ),
+        complete: false,
+        receive: false
+      });
 
+      return chunk;
     }
   }
 
@@ -51,14 +61,14 @@ function getNewChunk() {
 }
 
 
-function startServer( portNum ) {
+function startServer( socketPort, TransmitterPort ) {
   var server = http.createServer((req, res) => {
     res.writeHead(404, {'Content-Type': 'text/html'});
     res.end('<h1>:)</h1>');
   });
-  server.listen(portNum);
+  server.listen(socketPort);
   io = io.listen(server);
-  console.log('server is running on port:' + portNum);
+  console.log('server is running on port:' + socketPort);
 
   // Add a connect listener
   io.sockets.on('connection', (socket) => {
@@ -78,13 +88,13 @@ function startServer( portNum ) {
       console.log('Client disconnected.');
     });
   });
+
+  new Transmitter(TransmitterPort, CHUNKSIZE);
 }
 
-function main( portNum ) {
-  startServer(8080);
-  newDownload('http://googleshirazi.com/Content/images/googlelogo_color_272x92dp.png?v=3.5');
-  newDownload('http://hdwallpapershdpics.com/wp-content/uploads/2016/05/stunning-full-hd.jpeg');
-  // newDownload('http://cdn.download.ir/?b=dlir-mac&f=Smart.Converter.Pro.2.3.0.www.download.ir.rar');
-  newDownload('https://www.google.com/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwjjpu2dnoPRAhWNM1AKHc49AbkQjRwIBw&url=http%3A%2F%2Fwww.deviantart.com%2Ftag%2Fiji&psig=AFQjCNFJpTiXyWSJazjQGgeQsGdZHGV5lA&ust=1482339247296096');
-};
-main();
+startServer(8888, 9999);
+
+newDownload('http://googleshirazi.com/Content/images/googlelogo_color_272x92dp.png?v=3.5');
+newDownload('http://hdwallpapershdpics.com/wp-content/uploads/2016/05/stunning-full-hd.jpeg');
+newDownload('http://cdn.download.ir/?b=dlir-mac&f=Smart.Converter.Pro.2.3.0.www.download.ir.rar');
+newDownload('https://www.google.com/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwjjpu2dnoPRAhWNM1AKHc49AbkQjRwIBw&url=http%3A%2F%2Fwww.deviantart.com%2Ftag%2Fiji&psig=AFQjCNFJpTiXyWSJazjQGgeQsGdZHGV5lA&ust=1482339247296096');
