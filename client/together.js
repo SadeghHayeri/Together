@@ -45,8 +45,8 @@ function connect( serverInfo ) {
 }
 
 function start( ip, socketPort, TransmitterPort ) {
-  connect({ ip: ip, port: socketPort });
-  transmitter = new Transmitter({ ip: ip, port: TransmitterPort });
+  connect({ ip: 'http://' + ip, port: socketPort });
+  transmitter = new Transmitter({ ip: 'http://' + ip, port: TransmitterPort });
 }
 
-start( 'http://localhost', 5555, 6666);
+start( 'localhost', 5555, 6666);
