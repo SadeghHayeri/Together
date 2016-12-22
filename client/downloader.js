@@ -29,6 +29,7 @@ class Downloader {
 
     .on('progress', (state) => {
       state.begin = true;
+      state.complete = false;
       Downloader.currStatus = state;
     })
     .on('error', (err) => {
@@ -37,6 +38,10 @@ class Downloader {
     })
     .on('end', () => {
         Downloader.callback(true);
+        Downloader.currStatus.time.remaining = 0;
+        Downloader.currStatus.speed = 0;
+        Downloader.currStatus.percent = 1;
+        Downloader.currStatus.complete = true;
     })
 
     .pipe(fs.createWriteStream('Downloads/' + Downloader.options.folderName + "/" + Downloader.options.fileName));
@@ -50,6 +55,13 @@ class Downloader {
 }
 Downloader.options = {};
 Downloader.callback = {};
-Downloader.currStatus = {begin: false};
+Downloader.currStatus = {
+  time: { elapsed: 0, remaining: 0 },
+  speed: 0,
+  percent: 0,
+  size: { total: 0, transferred: 0 },
+  begin: false,
+  complete: false
+};
 
 module.exports = Downloader;

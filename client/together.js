@@ -14,6 +14,7 @@ function checkDownload(socket) {
 function connect( serverInfo ) {
 
   var socket = io.connect(`${serverInfo.ip}:${serverInfo.port}`, {reconnect: true});
+
   socket.on('connect', function(socket) {
     this.on('newChunk', (chunk) => {
 
@@ -25,14 +26,20 @@ function connect( serverInfo ) {
       }
       downloads.push(newDownload);
 
-      new Downloader( chunk.url, chunk.startRange, chunk.endRange, folderName, chunk.partNum, () => {
+      var downloader = new Downloader( chunk.url, chunk.startRange, chunk.endRange, folderName, chunk.partNum, () => {
         downloads[downloads.length-1].complete = true;
         transmitter.sendFile(folderName, chunk.partNum);
         checkDownload(this);
-      }).start();
+      });
+      downloader.start();
+
+      this.on('getStatus', () => {
+        this.emit( 'status', downloader.status() );
+      });
 
     });
     checkDownload(this);
+
   });
 
 }

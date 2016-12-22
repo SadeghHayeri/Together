@@ -15,7 +15,7 @@ class Transmitter {
       console.log('new connection!');
 
       ss(socket).on('sendFile', function(stream, data) {
-        console.log('new file :)');
+        // console.log('newFile!');
         var filename = path.basename(data.name);
 
         if (!fs.existsSync('Downloads'))
