@@ -48,6 +48,7 @@ var downloads = [];
 var transmitter = {};
 
 function checkDownload(socket) {
+  console.log('imReady!');
   socket.emit('imReady');
 }
 
@@ -74,6 +75,7 @@ function connect( serverInfo ) {
       downloader.start();
 
       this.on('getStatus', () => {
+        console.log(downloader.status());
         this.emit( 'status', downloader.status() );
       });
 
@@ -89,4 +91,5 @@ function start( ip, socketPort, TransmitterPort ) {
   transmitter = new Transmitter({ ip: 'http://' + ip, port: TransmitterPort });
 }
 
-start( 'localhost', 5555, 6666);
+// start( 'localhost', 3456, 4567);
+start( '172.16.86.59', 4444, 5555);
