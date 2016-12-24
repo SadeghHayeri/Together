@@ -1,0 +1,110 @@
+body {
+  background-color: #001622;
+  margin: 0;
+  font-family: sans-serif;
+  -webkit-user-select: none;
+}
+
+p {
+  margin: 0;
+}
+
+.contaner {
+  /*width: 600px;*/
+  width: 92%;
+  margin: 0px auto;
+}
+
+.topMenu {
+  background-color: #001019;
+  height: 50px;
+  -webkit-app-region: drag;
+}
+
+.exit {
+  background-image: url('../img/exit.png');
+  width: 20px;
+  height: 20px;
+  float: right;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 80%;
+  opacity: 0.5;
+  cursor: pointer;
+  margin-top: 15px;
+  -webkit-app-region: no-drag;
+}
+
+.logo {
+  background-image: url('../img/logo.png');
+  width: 120px;
+  height: 44px;
+  float: left;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 80%;
+  margin-top: 5px;
+}
+
+.status {
+  width: 150px;
+  height: 70px;
+  background-color: #051b26;
+  margin-top: 10px;
+  border-radius: 4px;
+  float: left;
+}
+
+.status p {
+  color: #a5a8aa;
+  font-size: 13px;
+  line-height: 4px;
+  margin-left: 15px;
+  margin-top: 15px;
+}
+
+.downloadBtn {
+  background-color: #053f5f;
+  padding: 7px 17px;
+  float: right;
+  margin-top: 10px;
+  color: #a5a8aa;
+  font-size: 12px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.footer {
+  background-color: #001019;
+  height: 23px;
+}
+
+.footer p {
+  color: #a5a8aa;
+  font-size: 12px;
+  float: left;
+  margin-top: 5px;
+}
+
+/**/
+.chart {
+  margin-top: 120px;
+}
+
+.highcharts-background {
+  background-color: red;
+  fill: none;
+}
+
+.highcharts-grid-line {
+  opacity: .1;
+}
+
+.highcharts-credits {
+  display: none;
+}
+
+.contaner-chart {
+  width: 96%;
+  margin-left: -5px;
+}

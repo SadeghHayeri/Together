@@ -5,6 +5,49 @@ var io = require('socket.io');
 var clear = require('clear');
 var Transmitter = require('./transmitter.js');
 
+////////////////////////////////////////////////////////////////////////////////
+var path = require('path');
+const electron = require('electron')
+const BrowserWindow = electron.BrowserWindow
+const app = electron.app
+const debug = /--debug/.test(process.argv[2])
+if (process.mas) app.setName('Electron APIs')
+var mainWindow = null
+
+function createWindow () {
+  var windowOptions = {
+    width: 600,
+    height: 393,
+    title: app.getName(),
+    // transparent: true,
+    resizable: false,
+    frame: false,
+  }
+
+  if (process.platform === 'linux') {
+    windowOptions.icon = path.join(__dirname, '/assets/app-icon/png/512.png')
+  }
+
+  mainWindow = new BrowserWindow(windowOptions)
+  mainWindow.loadURL(path.join('file://', __dirname, 'gui/index.html'))
+
+  // Launch fullscreen with DevTools open, usage: npm run debug
+  if (debug) {
+    mainWindow.webContents.openDevTools()
+    mainWindow.maximize()
+    require('devtron').install()
+  }
+
+  mainWindow.on('closed', function () {
+    mainWindow = null
+  })
+}
+app.on('ready', function () {
+  createWindow()
+})
+
+////////////////////////////////////////////////////////////////////////////////
+
 const Mb = 1048576;
 const CHUNKSIZE = 10 * Mb;
 
@@ -81,7 +124,7 @@ function printStatus() {
 
 
 
-  clear();
+  // clear();
   console.log(`workers: ${clientList.length}`);
   console.log(`percent: ${percent}%`);
 
@@ -192,7 +235,7 @@ function startServer( socketPort, TransmitterPort ) {
 }
 
 setInterval( () => {printStatus()} , 100);
-startServer(5555, 6666);
+startServer(3333, 4444);
 
 // newDownload('http://googleshirazi.com/Content/images/googlelogo_color_272x92dp.png?v=3.5');
 // newDownload('http://hdwallpapershdpics.com/wp-content/uploads/2016/05/stunning-full-hd.jpeg');

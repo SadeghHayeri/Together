@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Together</title>
+  <link rel="stylesheet" href="css/style.css">
+
+  <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+
+  <script src="js/jquery-1.10.1.min.js"></script>
+  <script src="js/d3.min.js" charset="utf-8"></script>
+  <script src="js/epoch.min.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(document).ready( function() {
+
+      var areaChartData = [
+        {label: 'A', values: []},
+        {label: 'B', values: []},
+        {label: 'C', values: []},
+        {label: 'E', values: []},
+        {label: 'F', values: []}
+      ];
+
+      for (var i = 0; i < 50; i++) {
+          areaChartData[0].values.push({time: i, y: Math.random()*2});
+          areaChartData[1].values.push({time: i, y: Math.random()*2});
+          areaChartData[2].values.push({time: i, y: Math.random()*2});
+          areaChartData[3].values.push({time: i, y: Math.random()*2});
+          areaChartData[4].values.push({time: i, y: Math.random()*2});
+      }
+
+      var myChart = $('#areaChart').epoch({
+        type: 'time.area',
+        data: areaChartData,
+        axes: ['bottom', 'left'],
+        ticks: { time: 10, left: 5 },
+        tickFormats: { time: function(d) { return new Date(time*1000).toString(); } },
+        historySize: 240
+      });
+
+      var i = 20;
+      setInterval( function() {
+
+        myChart.push([
+            {time: i, y: Math.random()*2},
+            {time: i, y: Math.random()*2},
+            {time: i, y: Math.random()*2},
+            {time: i, y: Math.random()*2},
+            {time: i, y: Math.random()*2}
+        ]);
+        i++;
+        // myChart.redraw();
+
+      }, 1000);
+
+    });
+  </script>
+  <script>if (window.module) module = window.module;</script>
+
+
+  <link rel="stylesheet" href="css/epoch.min.css"/>
+
+</head>
+<body>
+  <div class="topMenu">
+    <div class="contaner">
+      <div class="exit"></div>
+      <div class="logo"></div>
+    </div>
+  </div>
+  <div class="contaner">
+    <div class="status">
+      <p>workers: 4</p>
+      <p>speed: 3.8Mb</p>
+      <p>percent: %</p>
+    </div>
+    <div class="downloadBtn">New Download</div>
+    <div class="playPause"></div>
+  </div>
+
+  <div class="contaner-chart chart">
+    <div id="areaChart" class="epoch category10" style="height: 200px"></div>
+  </div>
+
+  <div class="footer">
+    <div class="contaner">
+      <p>IP: 192.168.1.5</p>
+    </div>
+  </div>
+</body>
+</html>
