@@ -4,6 +4,46 @@ var request = require('request');
 var io = require('socket.io-client');
 var Transmitter = require('./transmitterClient.js');
 
+////////////////////////////////////////////////////////////////////////////////
+var path = require('path');
+const electron = require('electron')
+const BrowserWindow = electron.BrowserWindow
+const app = electron.app
+const debug = /--debug/.test(process.argv[2])
+if (process.mas) app.setName('Electron APIs')
+var mainWindow = null
+
+function createWindow () {
+  var windowOptions = {
+    width: 150,
+    height: 100,
+    title: app.getName(),
+  }
+
+  if (process.platform === 'linux') {
+    windowOptions.icon = path.join(__dirname, '/assets/app-icon/png/512.png')
+  }
+
+  mainWindow = new BrowserWindow(windowOptions)
+  mainWindow.loadURL(path.join('file://', __dirname, '/index.html'))
+
+  // Launch fullscreen with DevTools open, usage: npm run debug
+  if (debug) {
+    mainWindow.webContents.openDevTools()
+    mainWindow.maximize()
+    require('devtron').install()
+  }
+
+  mainWindow.on('closed', function () {
+    mainWindow = null
+  })
+}
+app.on('ready', function () {
+  createWindow()
+})
+
+////////////////////////////////////////////////////////////////////////////////
+
 var downloads = [];
 var transmitter = {};
 

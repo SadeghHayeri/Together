@@ -1,8 +1,10 @@
 {
   "name": "your-app",
+  "description": "Test",
   "version": "0.1.0",
-  "main": "main.js",
+  "main": "together.js",
   "dependencies": {
+    "electron": "1.4.13",
     "request": "^2.79.0",
     "request-progress": "^3.0.0",
     "socket.io": "^1.7.2",
