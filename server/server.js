@@ -4,15 +4,50 @@ var http = require('http');
 var io = require('socket.io');
 var clear = require('clear');
 var Transmitter = require('./transmitter.js');
+var myIp = require('ip').address();
 
 ////////////////////////////////////////////////////////////////////////////////
-var path = require('path');
+var path = require('path')
 const electron = require('electron')
+
 const BrowserWindow = electron.BrowserWindow
 const app = electron.app
 const debug = /--debug/.test(process.argv[2])
 if (process.mas) app.setName('Electron APIs')
 var mainWindow = null
+
+function getStatus() {
+
+  var status = {}
+
+  // find percent
+  var downloadedChunk = 0;
+  for (var i = 0; i < clientList.length; i++)
+    downloadedChunk += clientList[i].chunks.length;
+  var totalChunk = 0;
+  for (var i = 0; i < downloadList.length; i++)
+    totalChunk += downloadList[i].partsCount;
+  status.percent = Math.ceil( (downloadedChunk/totalChunk) * 100 );
+
+  // find speed
+  status.speed = 0;
+  for (var i = 0; i < clientList.length; i++)
+    status.speed += clientList[i].status.speed;
+
+  status.workers = 0
+  status.clients = []
+  for (var i = 0; i < clientList.length; i++) {
+    status.clients.push({
+      id: clientList[i].id,
+      chunkPercent: clientList[i].status.percent,
+      speed: Math.round( clientList[i].status.speed/1024 ),
+    })
+    status.workers += (clientList[i].connect)? 1 : 0
+  }
+
+  status.timestamp = Date.now()
+  return status
+}
 
 function createWindow () {
   var windowOptions = {
@@ -20,7 +55,7 @@ function createWindow () {
     height: 393,
     title: app.getName(),
     // transparent: true,
-    resizable: false,
+    // resizable: false,
     frame: false,
   }
 
@@ -30,6 +65,16 @@ function createWindow () {
 
   mainWindow = new BrowserWindow(windowOptions)
   mainWindow.loadURL(path.join('file://', __dirname, 'gui/index.html'))
+
+  const {ipcMain} = require('electron')
+  ipcMain.once('getMeInfo', (event, arg) => {
+    event.sender.send('setIp', myIp);
+
+    setInterval( function() {
+      event.sender.send('setStatus', getStatus());
+    }, 1000);
+
+  })
 
   // Launch fullscreen with DevTools open, usage: npm run debug
   if (debug) {
@@ -45,7 +90,6 @@ function createWindow () {
 app.on('ready', function () {
   createWindow()
 })
-
 ////////////////////////////////////////////////////////////////////////////////
 
 const Mb = 1048576;
@@ -104,49 +148,6 @@ function getNewChunk() {
   }
 
   return false;
-}
-
-function printStatus() {
-
-  // find percent
-  var downloadedChunk = 0;
-  for (var i = 0; i < clientList.length; i++)
-    downloadedChunk += clientList[i].chunks.length;
-  var totalChunk = 0;
-  for (var i = 0; i < downloadList.length; i++)
-    totalChunk += downloadList[i].partsCount;
-  var percent = Math.ceil( (downloadedChunk/totalChunk) * 100 );
-
-  // find speed
-  var speed = 0;
-  for (var i = 0; i < clientList.length; i++)
-    speed += clientList[i].status.speed;
-
-
-
-  // clear();
-  console.log(`workers: ${clientList.length}`);
-  console.log(`percent: ${percent}%`);
-
-  if(speed/Mb > 1)
-    console.log(`speed: ${Math.round( speed/Mb * 100 ) / 100} Mb`);
-  else
-    console.log(`speed: ${Math.round( speed/1024 )} Kb`);
-
-  console.log("");
-  console.log(" Id\tDownloaded\tSpeed\t\tProgress");
-  console.log("---------------------------------------------------------------");
-  for (var i = 0; i < clientList.length; i++) {
-    var progressCount = Math.ceil(clientList[i].status.percent * 20);
-    var progress = ""
-    for (var j = 0; j < progressCount; j++)
-      progress += "=";
-    for (var j = 0; j < 20 - progressCount; j++)
-      progress += " ";
-    progress = (progress !== "")? progress : "                    ";
-    console.log(` ${i}\t${clientList[i].chunks.length}\t\t${Math.round(clientList[i].status.speed/1024 )} Kb\t\t[${progress}]`);
-  }
-  console.log("---------------------------------------------------------------");
 }
 
 function newConnection( id ) {
@@ -234,8 +235,8 @@ function startServer( socketPort, TransmitterPort ) {
   new Transmitter(TransmitterPort, CHUNKSIZE);
 }
 
-setInterval( () => {printStatus()} , 100);
-startServer(3333, 4444);
+// setInterval( () => {printStatus()} , 100);
+startServer(4444, 5555);
 
 // newDownload('http://googleshirazi.com/Content/images/googlelogo_color_272x92dp.png?v=3.5');
 // newDownload('http://hdwallpapershdpics.com/wp-content/uploads/2016/05/stunning-full-hd.jpeg');
