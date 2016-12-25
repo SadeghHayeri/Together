@@ -1,0 +1,156 @@
+body {
+  background-color: #001622;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+.contaner {
+  width: 600px;
+  margin: 0px auto;
+}
+
+.topMenu {
+  background-color: #001019;
+  height: 50px;
+}
+
+.exit {
+  background-image: url('exit.png');
+  width: 20px;
+  height: 20px;
+  float: right;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 80%;
+  opacity: 0.5;
+  cursor: pointer;
+  margin-top: 15px;
+
+  transition: .4s all;
+}
+
+.exit:hover {
+  opacity: 1;
+}
+
+.logo {
+  background-image: url('logo.png');
+  width: 120px;
+  height: 44px;
+  float: left;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 80%;
+  margin-top: 5px;
+}
+
+.status {
+  width: 150px;
+  height: 70px;
+  background-color: #051b26;
+  margin-top: 10px;
+  border-radius: 4px;
+  float: left;
+}
+
+.status p {
+  color: #a5a8aa;
+  font-family: "Letter Gothic Std";
+  font-size: 13px;
+  line-height: 4px;
+  margin-left: 15px;
+  margin-top: 15px;
+}
+
+.downloadBtn {
+  background-color: #053f5f;
+  padding: 7px 17px;
+  float: right;
+  margin-top: 10px;
+  color: #a5a8aa;
+  font-family: "Letter Gothic Std";
+  font-size: 12px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.highcharts-background {
+  background-color: red;
+  fill: none;
+}
+
+.highcharts-grid-line {
+  opacity: .1;
+}
+
+.highcharts-credits {
+  display: none;
+}
+
+
+.bigBtn {
+  width: 280px;
+  height: 220px;
+  background-color: #001019;
+  float: left;
+  border-radius: 5px;
+  border: 2px solid #38454f;
+  margin-top: 20px;
+  cursor: pointer;
+
+  transition: .4s all;
+}
+
+.bigBtn:hover {
+  border: 2px solid #21ae5e;
+  background-color: #001622;
+}
+
+.bigBtn img {
+  display: block;
+  margin: 0px auto;
+  width: 60px;
+  margin-top: 30px;
+}
+
+.bigBtns:first {
+  margin-left: 100px;
+}
+
+.right {
+  float: right;
+}
+
+.left {
+  float: left;
+}
+
+.bigBtn h4 {
+  color: #fff;
+  font-weight: bold;
+  font-size: 14px;
+  text-align: center;
+  font-family: 'Letter Gothic Std';
+  margin-bottom: 5px;
+}
+
+.bigBtn p {
+  color: #8697cb;
+  font-weight: bold;
+  font-size: 12px;
+  text-align: center;
+  font-family: 'Letter Gothic Std';
+  padding-right: 20px;
+  padding-left: 20px;
+}
+
+.footer {
+  background-color: #001019;
+  height: 5px;
+  width: 100%;
+  float: right;
+  margin-top: 20px;
+}
