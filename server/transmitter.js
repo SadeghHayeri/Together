@@ -12,11 +12,9 @@ class Transmitter {
 
     var io = socket.listen(portNum);
     io.on('connection', function(socket) {
-      console.log('new connection!');
 
       ss(socket).on('sendFile', function(stream, data) {
-        // console.log('newFile!');
-        var filename = path.basename(data.name);
+        var filename = path.basename(data.fileName);
 
         if (!fs.existsSync('Downloads'))
           fs.mkdirSync('Downloads');
@@ -25,9 +23,7 @@ class Transmitter {
           fs.mkdirSync('Downloads/' + data.fileName);
 
 
-        var str = progress({
-          length: CHUNKSIZE,
-        });
+        var str = progress({ length: CHUNKSIZE });
         str.on('progress', function(progress) {
           progress.begin = true;
           Transmitter.status = progress;

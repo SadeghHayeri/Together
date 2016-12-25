@@ -204,8 +204,7 @@ function startServer( socketPort, TransmitterPort ) {
 
   // Add a connect listener
   io.sockets.on('connection', (socket) => {
-    console.log(`Client connected. (${socket.id})`);
-
+    console.log(`Client connected. (${socket.handshake.address} - ${socket.id})`);
     newConnection(socket.id);
 
     // listen to clients!
@@ -226,9 +225,8 @@ function startServer( socketPort, TransmitterPort ) {
     // Disconnect listener
     socket.on('disconnect', () => {
       clearInterval(statusTimer);
-      console.log(":::" + socket.id);
       disconnectClient(socket.id);
-      console.log('Client disconnected.');
+      console.log(`Client disconnected. (${socket.handshake.address} - ${socket.id})`);
     });
   });
 
