@@ -8,7 +8,7 @@ var progress = require('progress-stream');
 
 class Transmitter {
 
-  constructor( portNum, CHUNKSIZE ) {
+  constructor( portNum, chunkSize ) {
 
     var io = socket.listen(portNum);
     io.on('connection', function(socket) {
@@ -23,7 +23,7 @@ class Transmitter {
           fs.mkdirSync('Downloads/' + data.fileName);
 
 
-        var str = progress({ length: CHUNKSIZE });
+        var str = progress({ length: chunkSize });
         str.on('progress', function(progress) {
           progress.begin = true;
           Transmitter.status = progress;

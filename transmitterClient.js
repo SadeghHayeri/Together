@@ -13,9 +13,9 @@ class TransmitterClient {
   sendFile( fileName, partNum ) {
     var stream = ss.createStream();
     ss(TransmitterClient.socket).emit('sendFile', stream, {fileName: fileName, partNum: partNum});
-    var f = fs.createReadStream(`Downloads/${fileName}/${fileName}.part${partNum}`).pipe(stream);
+    var f = fs.createReadStream(`Downloads/tmp/${fileName}/${fileName}.part${partNum}`).pipe(stream);
     f.on('finish',() => {
-      fs.unlink(`Downloads/${fileName}/${fileName}.part${partNum}`, (err) => {
+      fs.unlink(`Downloads/tmp/${fileName}/${fileName}.part${partNum}`, (err) => {
         if (err) throw err;
         console.log(`${fileName}/${fileName}.part${partNum} successfully deleted!`);
       });
