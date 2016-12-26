@@ -21,8 +21,8 @@ class Downloader {
     if (!fs.existsSync('Downloads/tmp'))
       fs.mkdirSync('Downloads/tmp');
 
-    if (!fs.existsSync('Downloads/tmp' + Downloader.options.folderName))
-      fs.mkdirSync('Downloads/tmp' + Downloader.options.folderName);
+    if (!fs.existsSync('Downloads/tmp/' + Downloader.options.folderName))
+      fs.mkdirSync('Downloads/tmp/' + Downloader.options.folderName);
 
     progress( request(Downloader.options), {
       throttle: 100,
@@ -46,7 +46,7 @@ class Downloader {
         Downloader.currStatus.complete = true;
     })
 
-    .pipe(fs.createWriteStream('Downloads/tmp' + Downloader.options.folderName + "/" + Downloader.options.fileName));
+    .pipe(fs.createWriteStream('Downloads/tmp/' + Downloader.options.folderName + "/" + Downloader.options.fileName));
 
   }
 
