@@ -2,14 +2,14 @@ const {ipcRenderer} = require('electron')
 
 $(document).ready(function() {
 
-  $('.submitBtn').click( () => {
+  $('#startBtn').click( () => {
     ipcRenderer.send('newServerDialog:start', {
-      name: 'sadegh',
-      download: true,
+      name: $('#name').val(),
+      download: true
     })
   })
 
-  $('.cancelBtn').click( () => {
+  $('#cancelBtn').click( () => {
     ipcRenderer.send('newServerDialog:cancel')
   })
 
