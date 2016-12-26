@@ -1,6 +1,8 @@
 body {
   background-color: #001622;
   margin: 0;
+  font-family: sans-serif !important;
+  -webkit-user-select: none;
 }
 
 p {
@@ -15,6 +17,7 @@ p {
 .topMenu {
   background-color: #001019;
   height: 50px;
+  -webkit-app-region: drag;
 }
 
 .exit {
@@ -28,7 +31,7 @@ p {
   opacity: 0.5;
   cursor: pointer;
   margin-top: 15px;
-
+  -webkit-app-region: no-drag;
   transition: .4s all;
 }
 
@@ -58,7 +61,7 @@ p {
 
 .status p {
   color: #a5a8aa;
-  font-family: "Letter Gothic Std";
+  font-family: "LetterGothicStd";
   font-size: 13px;
   line-height: 4px;
   margin-left: 15px;
@@ -71,7 +74,7 @@ p {
   float: right;
   margin-top: 10px;
   color: #a5a8aa;
-  font-family: "Letter Gothic Std";
+  font-family: "LetterGothicStd";
   font-size: 12px;
   border-radius: 3px;
   cursor: pointer;
@@ -133,7 +136,7 @@ p {
   font-weight: bold;
   font-size: 14px;
   text-align: center;
-  font-family: 'Letter Gothic Std';
+  font-family: 'LetterGothicStd';
   margin-bottom: 5px;
 }
 
@@ -142,7 +145,7 @@ p {
   font-weight: bold;
   font-size: 12px;
   text-align: center;
-  font-family: 'Letter Gothic Std';
+  font-family: 'LetterGothicStd';
   padding-right: 20px;
   padding-left: 20px;
 }
