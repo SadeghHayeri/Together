@@ -1,3 +1,5 @@
+const {ipcRenderer} = require('electron')
+
 $(document).ready(function() {
 
   var areaChartData = []
@@ -7,23 +9,18 @@ $(document).ready(function() {
     data: areaChartData,
     axes: ['bottom', 'left'],
     ticks: { time: 10, left: 5 },
-    tickFormats: { time: function(d) { return new Date(time*1000).toString(); } },
+    tickFormats: { time: function(d) { return new Date(time*1000).toString() } },
     historySize: 240
-  });
-
-  const {ipcRenderer} = require('electron')
-  ipcRenderer.once('setIp', (event, ip) => {
-    $('#ip').html(ip);
   })
 
   function makeChart( length ) {
     areaChartData = []
-    for (var i = 0; i < length; i++)
+    for (var i = 0 i < length i++)
       areaChartData.push({
         label: 'a',
         values:[]
       })
-    myChart.update(areaChartData);
+    myChart.update(areaChartData)
   }
 
   var dataSize = 0
@@ -39,24 +36,30 @@ $(document).ready(function() {
 
   }
 
+  setInterval( () => {
+    ipcRenderer.send('serverWindow')
+  }, 1000)
+
   var lastSize = 0
-  ipcRenderer.on('setStatus', (event, status) => {
+  ipcRenderer.on('serverWindow:setStatus', (event, status) => {
 
     var newData = []
-    for (var i = 0; i < status.clients.length; i++)
+    for (var i = 0 i < status.clients.length i++)
       newData.push({time: status.timestamp, y: status.clients[i].speed})
 
-    addData( newData );
+    addData( newData )
 
     $('#workers').html(status.workers)
     $('#percent').html(status.percent)
     $('#speed').html( () => {
       if(status.speed/1048576 > 1)
-        return(`${Math.round( status.speed/1048576 * 100 ) / 100} Mb`);
-      return(`${Math.round( status.speed/1024 )} Kb`);
+        return(`${Math.round( status.speed/1048576 * 100 ) / 100} Mb`)
+      return(`${Math.round( status.speed/1024 )} Kb`)
     })
 
   })
-  ipcRenderer.send('getMeInfo', 'ping')
+  ipcRenderer.once('serverWindow:setIp', (event, ip) => {
+    $('#ip').html(ip)
+  })
 
-});
+})

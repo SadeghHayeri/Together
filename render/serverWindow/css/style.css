@@ -33,7 +33,12 @@ p {
   cursor: pointer;
   margin-top: 15px;
   -webkit-app-region: no-drag;
-}
+  transition: .4s all;
+  }
+
+  .exit:hover {
+  opacity: 1;
+  }
 
 .logo {
   background-image: url('../img/logo.png');
