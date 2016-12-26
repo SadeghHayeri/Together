@@ -1,6 +1,7 @@
 body {
   background-color: #001622;
   margin: 0;
+  -webkit-user-select: none;
 }
 
 p {
@@ -15,6 +16,7 @@ p {
 .topMenu {
   background-color: #001019;
   height: 50px;
+  -webkit-app-region: drag;
 }
 
 .exit {
@@ -28,7 +30,7 @@ p {
   opacity: 0.5;
   cursor: pointer;
   margin-top: 15px;
-
+  -webkit-app-region: no-drag;
   transition: .4s all;
 }
 
@@ -58,7 +60,7 @@ p {
 .title {
   color: #fff;
   font-size: 12px;
-  font-family: 'Letter Gothic Std';
+  font-family: "LetterGothicStd";
   opacity: .5;
   float: left;
   margin-top: 14px;
@@ -108,7 +110,7 @@ p {
 .server p {
   color: #fff;
   font-size: 13px;
-  font-family: 'Letter Gothic Std';
+  font-family: "LetterGothicStd";
   padding-right: 30px;
   padding-left: 30px;
   padding-top: 18px;
@@ -136,7 +138,7 @@ p {
   padding-left: 20px;
   padding-right: 10px;
   font-size: 13px;
-  font-family: 'Letter Gothic Std';
+  font-family: "LetterGothicStd";
   border: 1px solid #003856;
 }
 
@@ -147,7 +149,7 @@ p {
 .connectBtn {
   color: #fff;
   font-size: 13px;
-  font-family: 'Letter Gothic Std';
+  font-family: "LetterGothicStd";
   width: 100px;
   background-color: #003856;
   outline: none;
