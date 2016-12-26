@@ -44,23 +44,25 @@ class SearchNetwork {
 
 
 class Client {
-  constructor( ip, socketPort, TransmitterPort ) {
+  constructor( ip, socketPort, transmitterPort ) {
     this.connect({ ip: 'http://' + ip, port: socketPort })
-    this.transmitter = new Transmitter({ ip: 'http://' + ip, port: TransmitterPort })
+    this.transmitter = new Transmitter({ ip: 'http://' + ip, port: transmitterPort })
     this.downloads = []
-    this.transmitter = {}
+    this.inDownload = false
   }
 
   checkDownload(socket) {
-    socket.emit('imReady')
+    if( !this.inDownload )
+      socket.emit('imReady')
   }
 
   connect( serverInfo ) {
     var socket = io.connect(`${serverInfo.ip}:${serverInfo.port}`, {reconnect: true})
 
-    var thisClient = this  //TODO: do this in better way
+    var that = this  //TODO: do this in better way
     socket.on('connect', function(socket) {
       this.on('newChunk', (chunk) => {
+
 
         var folderName = chunk.url.split("/")[chunk.url.split("/").length-1]
         var newDownload = {
@@ -68,12 +70,14 @@ class Client {
           partNum: chunk.partNum,
           complete: false,
         }
-        thisClient.downloads.push(newDownload)
+        that.downloads.push(newDownload)
+        that.inDownload = true
 
         var downloader = new Downloader( chunk.url, chunk.startRange, chunk.endRange, folderName, chunk.partNum, () => {
-          thisClient.downloads[thisClient.downloads.length-1].complete = true
-          transmitter.sendFile(folderName, chunk.partNum)
-          thisClient.checkDownload(this)
+          that.inDownload = false
+          that.downloads[that.downloads.length-1].complete = true
+          that.transmitter.sendFile(folderName, chunk.partNum)
+          that.checkDownload(this)
         })
         downloader.start()
 
@@ -83,7 +87,8 @@ class Client {
         })
 
       })
-      thisClient.checkDownload(this)
+
+      setInterval( () => { that.checkDownload(this) }, 1000);
 
     })
   }
