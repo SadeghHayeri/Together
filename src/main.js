@@ -8,6 +8,7 @@ const debug = /--debug/.test(process.argv[2])
 if (process.mas) app.setName('Electron APIs')
 var fs = require('fs')
 var myIp = require('ip').address()
+var {Client, SearchNetwork} = require('./client.js')
 
 var config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
@@ -46,6 +47,7 @@ var config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 var mainWindow = null
 var findServerWindow = null
 var serverWindow = null
+var clientWindow = null
 
 var currWindow = null
 
@@ -78,10 +80,16 @@ function createWindows() {
   serverWindow = new BrowserWindow(windowOptions)
   serverWindow.loadURL(path.join('file://', __dirname, 'render/serverWindow/index.html'))
 
+  windowOptions.width = 300
+  windowOptions.height = 200
+  clientWindow = new BrowserWindow(windowOptions)
+  clientWindow.loadURL(path.join('file://', __dirname, 'render/clientWindow/index.html'))
+
   // close windows
   mainWindow.on('closed', function () {mainWindow = null})
   findServerWindow.on('closed', function () {findServerWindow = null})
   serverWindow.on('closed', function () {serverWindow = null})
+  clientWindow.on('closed', function () {clientWindow = null})
 
 }
 
@@ -124,12 +132,16 @@ app.on('ready', function () {
   })
 
   // get info for serverWindow
+  var searchNetwork = new SearchNetwork()
   ipcMain.on('findServerWindow', (event, arg) => {
-    console.log('aaa');
     if( currWindow === findServerWindow ) {
-      console.log('findServerWindow');
-      event.sender.send('findServerWindow:servers', [{name:'sadegh', ip:'192.123.321.3'}, {name:'ali', ip:'192.123.222.3'}]);
+      event.sender.send('findServerWindow:servers', searchNetwork.getServerList());
     }
+  })
+
+  ipcMain.on('findServerWindow:connect', (event, ip) => {
+    var client = new Client( ip, config.connection.socketPort, config.connection.transmitterPort );
+    moveTo(clientWindow)
   })
 
   // get info for serverWindow
@@ -139,8 +151,5 @@ app.on('ready', function () {
       event.sender.send('serverWindow:setStatus', getStatus());
     }
   })
-
-
-
 
 })

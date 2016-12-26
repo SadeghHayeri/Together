@@ -4,20 +4,17 @@ $(document).ready(function() {
 
   setInterval(function () {
     ipcRenderer.send('findServerWindow')
-  }, 5000);
+  }, 2000);
 
   var lastServers = []
   ipcRenderer.on('findServerWindow:servers', (event, servers) => {
     if( servers.length !== 0 ) {
 
       if( servers != lastServers ) {
-        console.log(servers != lastServers)
-        console.log(servers)
-        console.log(lastServers)
         var serversBox = ""
         for (var i = 0; i < servers.length; i++) {
           serversBox +=
-            `<div id="${servers[i].ip}" class="server">
+            `<div onClick="ipcRenderer.send('findServerWindow:connect', '${servers[i].ip}' )" id="${servers[i].ip}" class="server">
               <p class="left">${servers[i].name}</p>
               <p class="right">${servers[i].ip}</p>
             </div>`
@@ -27,6 +24,12 @@ $(document).ready(function() {
       }
 
     } else {
+      //TODO: server not found!
     }
   })
+
+  $('.connectBtn').click( () => {
+    //TODO
+  })
+
 })
