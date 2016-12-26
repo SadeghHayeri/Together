@@ -18,6 +18,7 @@ var findServerWindow = null
 var serverWindow = null
 var clientWindow = null
 var newServerDialog = null
+var newDownloadDialog = null
 
 var currWindow = null
 
@@ -50,17 +51,21 @@ function createWindows() {
   serverWindow = new BrowserWindow(windowOptions)
   serverWindow.loadURL(path.join('file://', __dirname, 'render/serverWindow/index.html'))
 
-  windowOptions.width = 300
-  windowOptions.height = 200
+  windowOptions.width = 150
+  windowOptions.height = 150
   clientWindow = new BrowserWindow(windowOptions)
   clientWindow.loadURL(path.join('file://', __dirname, 'render/clientWindow/index.html'))
 
-  windowOptions.width = 300
-  windowOptions.height = 200
+  windowOptions.width = 420
+  windowOptions.height = 190
   windowOptions.parent = mainWindow
   windowOptions.modal = true
   newServerDialog = new BrowserWindow(windowOptions)
   newServerDialog.loadURL(path.join('file://', __dirname, 'render/newServerDialog/index.html'))
+
+  windowOptions.parent = serverWindow
+  newDownloadDialog = new BrowserWindow(windowOptions)
+  newDownloadDialog.loadURL(path.join('file://', __dirname, 'render/newDownloadDialog/index.html'))
 
   // close windows
   mainWindow.on('closed', function () {mainWindow = null})
@@ -68,14 +73,15 @@ function createWindows() {
   serverWindow.on('closed', function () {serverWindow = null})
   clientWindow.on('closed', function () {clientWindow = null})
   newServerDialog.on('closed', function () {newServerDialog = null})
+  newDownloadDialog.on('closed', function () {newDownloadDialog = null})
 
 }
 
 function moveTo( windowName ) {
-  windowName.show()
   if( currWindow )
     currWindow.hide()
   currWindow = windowName
+  windowName.show()
   if (debug) {
     currWindow.webContents.openDevTools()
     currWindow.maximize()
@@ -124,7 +130,6 @@ app.on('ready', function () {
       moveTo(serverWindow)
       if(arg.download)
         client = new Client( myIp, config.connection.socketPort, config.connection.transmitterPort );
-      server.newDownload('http://ir.30nama.download/movies/t/Tomorrowland_2015_DUBBED_1080p_x265_BluRay_30nama_30NAMA.mkv')
     }
   })
 
@@ -133,7 +138,7 @@ app.on('ready', function () {
       newServerDialog.hide()
     }
   })
-  /////// ///////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
 
 
   // findServerWindow //////////////////////////////////////////////////////////
@@ -158,6 +163,27 @@ app.on('ready', function () {
         event.sender.send('serverWindow:setIp', myIp);
         event.sender.send('serverWindow:setStatus', server.getStatus());
       }
+    }
+  })
+
+  ipcMain.on('serverWindow:newDownload', (event, arg) => {
+    if( currWindow === serverWindow ) {
+      newDownloadDialog.show()
+    }
+  })
+  //////////////////////////////////////////////////////////////////////////////
+
+  // newDownloadDialog /////////////////////////////////////////////////////////
+  ipcMain.on('newDownloadDialog:addUrl', (event, url) => {
+    if( currWindow === serverWindow ) {
+      server.newDownload(url)
+      newDownloadDialog.hide()
+    }
+  })
+
+  ipcMain.on('newDownloadDialog:cancel', (event, arg) => {
+    if( currWindow === serverWindow ) {
+      newDownloadDialog.hide()
     }
   })
   //////////////////////////////////////////////////////////////////////////////

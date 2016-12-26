@@ -15,7 +15,7 @@ class Server {
 
     var server = http.createServer((req, res) => {
       res.writeHead(404, {'Content-Type': 'text/html'})
-      res.end(`${name}`)
+      res.end(':)')
     })
     server.listen(socketPort)
     io = io.listen(server)
