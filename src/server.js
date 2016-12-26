@@ -55,6 +55,39 @@ class Server {
     this.chunkSize = chunkSize
   }
 
+  getStatus() {
+    var status = {}
+
+    // find percent
+    var downloadedChunk = 0;
+    for (var i = 0; i < this.clientList.length; i++)
+      downloadedChunk += this.clientList[i].chunks.length;
+    var totalChunk = 0;
+    for (var i = 0; i < this.downloadList.length; i++)
+      totalChunk += this.downloadList[i].partsCount;
+    status.percent = Math.ceil( (downloadedChunk/totalChunk) * 100 );
+
+    // find speed
+    status.speed = 0;
+    for (var i = 0; i < this.clientList.length; i++)
+      status.speed += this.clientList[i].status.speed;
+
+    status.workers = 0
+    status.clients = []
+    for (var i = 0; i < this.clientList.length; i++) {
+      status.clients.push({
+        id: this.clientList[i].id,
+        chunkPercent: this.clientList[i].status.percent,
+        speed: Math.round( this.clientList[i].status.speed/1024 ),
+      })
+      status.workers += (this.clientList[i].connect)? 1 : 0
+    }
+
+    status.timestamp = Date.now()
+    return status
+  }
+
+
   newDownload( url ) {
     request.head({url:url}, (error, response, body) => {
       if( !error && response.headers['content-length'] !== undefined ) {
@@ -144,11 +177,4 @@ class Server {
 
 }
 
-var server = new Server(4444, 5555, 6666, 10485760, 'Sadegh')
-server.newDownload('http://ir.30nama.download/movies/t/Tomorrowland_2015_DUBBED_1080p_x265_BluRay_30nama_30NAMA.mkv')
-
-// server.newDownload('http://googleshirazi.com/Content/images/googlelogo_color_272x92dp.png?v=3.5')
-// server.newDownload('http://hdwallpapershdpics.com/wp-content/uploads/2016/05/stunning-full-hd.jpeg')
-// server.newDownload('http://cdn.download.ir/?b=dlir-mac&f=Smart.Converter.Pro.2.3.0.www.download.ir.rar')
-// server.newDownload('https://www.google.com/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwjjpu2dnoPRAhWNM1AKHc49AbkQjRwIBw&url=http%3A%2F%2Fwww.deviantart.com%2Ftag%2Fiji&psig=AFQjCNFJpTiXyWSJazjQGgeQsGdZHGV5lA&ust=1482339247296096')
-// server.newDownload('http://ir.30nama.download/movies/t/Tomorrowland_2015_DUBBED_1080p_x265_BluRay_30nama_30NAMA.mkv')
+module.exports = Server
