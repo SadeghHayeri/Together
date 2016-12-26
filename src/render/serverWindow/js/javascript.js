@@ -40,6 +40,10 @@ $(document).ready(function() {
     ipcRenderer.send('serverWindow')
   }, 1000)
 
+  $('.downloadBtn').click( () => {
+    ipcRenderer.send('serverWindow:newDownload')
+  })
+
   var lastSize = 0
   ipcRenderer.on('serverWindow:setStatus', (event, status) => {
 

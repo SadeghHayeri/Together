@@ -1,0 +1,91 @@
+body {
+  background-color: #001622;
+  margin: 0;
+  padding: 0;
+}
+
+.topMenu {
+  background-color: #001019;
+  width: 100%;
+  height: 12px;
+}
+
+.contaner {
+  width: 80%;
+  margin: 0px auto;
+}
+
+label {
+  font-family: "LetterGothicStd";
+  font-size: 14px;
+  color: #989b9d;
+}
+
+input {
+  font-family: "LetterGothicStd";
+  background-color: #001019;
+  font-size: 13px;
+  width: 250px;
+  height: 40px;
+  border: 1px solid #003856;
+  border-radius: 4px;
+  margin-left: 10px;
+  outline: none;
+
+  transition: all .3s;
+  color: #56646d;
+  padding-left: 10px;
+}
+
+input:focus {
+  background-color: #00131d;
+  border: 1px solid #004468;
+}
+
+.inputBox {
+  margin-top: 30px;
+}
+
+.btnBox {
+  width: 250px;
+  margin: 0px auto;
+  clear: both;
+  margin-top: 25px;
+}
+
+button {
+  border: none;
+  float: left;
+  width: 120px;
+  height: 40px;
+  font-family: "LetterGothicStd";
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+  border-radius: 4px;
+  padding: 0;
+  cursor: pointer;
+  transition: all .4s;
+  outline: none;
+  padding-top: 3px;
+}
+
+button:hover {
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.start {
+  background-color: #003856;
+  margin-left: 10px;
+}
+
+.start:hover {
+  background-color: #01304a;
+}
+
+.cancel {
+  background-color: #7a8084;
+}
+
+.cancel:hover {
+  background-color: #696e72;
+}
