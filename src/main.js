@@ -9,45 +9,15 @@ if (process.mas) app.setName('Electron APIs')
 var fs = require('fs')
 var myIp = require('ip').address()
 var {Client, SearchNetwork} = require('./client.js')
+var Server = require('./server.js')
 
-var config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
+var config = JSON.parse(fs.readFileSync('config.json', 'utf8'))
 
-// function getStatus() {
-//
-//   var status = {}
-//
-//   // find percent
-//   var downloadedChunk = 0;
-//   for (var i = 0; i < clientList.length; i++)
-//     downloadedChunk += clientList[i].chunks.length;
-//   var totalChunk = 0;
-//   for (var i = 0; i < downloadList.length; i++)
-//     totalChunk += downloadList[i].partsCount;
-//   status.percent = Math.ceil( (downloadedChunk/totalChunk) * 100 );
-//
-//   // find speed
-//   status.speed = 0;
-//   for (var i = 0; i < clientList.length; i++)
-//     status.speed += clientList[i].status.speed;
-//
-//   status.workers = 0
-//   status.clients = []
-//   for (var i = 0; i < clientList.length; i++) {
-//     status.clients.push({
-//       id: clientList[i].id,
-//       chunkPercent: clientList[i].status.percent,
-//       speed: Math.round( clientList[i].status.speed/1024 ),
-//     })
-//     status.workers += (clientList[i].connect)? 1 : 0
-//   }
-//
-//   status.timestamp = Date.now()
-//   return status
-// }
 var mainWindow = null
 var findServerWindow = null
 var serverWindow = null
 var clientWindow = null
+var newServerDialog = null
 
 var currWindow = null
 
@@ -85,11 +55,19 @@ function createWindows() {
   clientWindow = new BrowserWindow(windowOptions)
   clientWindow.loadURL(path.join('file://', __dirname, 'render/clientWindow/index.html'))
 
+  windowOptions.width = 300
+  windowOptions.height = 200
+  windowOptions.parent = mainWindow
+  windowOptions.modal = true
+  newServerDialog = new BrowserWindow(windowOptions)
+  newServerDialog.loadURL(path.join('file://', __dirname, 'render/newServerDialog/index.html'))
+
   // close windows
   mainWindow.on('closed', function () {mainWindow = null})
   findServerWindow.on('closed', function () {findServerWindow = null})
   serverWindow.on('closed', function () {serverWindow = null})
   clientWindow.on('closed', function () {clientWindow = null})
+  newServerDialog.on('closed', function () {newServerDialog = null})
 
 }
 
@@ -113,8 +91,11 @@ app.on('ready', function () {
     moveTo(mainWindow)
   })
 
-  // change windows
-  ipcMain.once('selectWindows', (event, windowName) => {
+  var server = null
+  var client = null
+
+  // mainWindow ////////////////////////////////////////////////////////////////
+  ipcMain.on('selectWindows', (event, windowName) => {
     switch (windowName) {
       case 'findServerWindow':
         moveTo(findServerWindow)
@@ -125,13 +106,37 @@ app.on('ready', function () {
       case 'serverWindow':
         moveTo(serverWindow)
         break;
+      case 'newServerDialog':
+        newServerDialog.show()
+        break;
       default:
         console.log('error!');
         moveTo(mainWindow)
     }
   })
+  //////////////////////////////////////////////////////////////////////////////
 
-  // get info for serverWindow
+  // newServerDialog ///////////////////////////////////////////////////////////
+  ipcMain.on('newServerDialog:start', (event, arg) => {
+    if( currWindow === mainWindow ) {
+      server = new Server(config.connection.socketPort, config.connection.transmitterPort, config.connection.bonjourPort, config.chunkSize, arg.name)
+      newServerDialog.hide()
+      moveTo(serverWindow)
+      if(arg.download)
+        client = new Client( myIp, config.connection.socketPort, config.connection.transmitterPort );
+      server.newDownload('http://ir.30nama.download/movies/t/Tomorrowland_2015_DUBBED_1080p_x265_BluRay_30nama_30NAMA.mkv')
+    }
+  })
+
+  ipcMain.on('newServerDialog:cancel', (event, arg) => {
+    if( currWindow === mainWindow ) {
+      newServerDialog.hide()
+    }
+  })
+  /////// ///////////////////////////////////////////////////////////////////////
+
+
+  // findServerWindow //////////////////////////////////////////////////////////
   var searchNetwork = new SearchNetwork()
   ipcMain.on('findServerWindow', (event, arg) => {
     if( currWindow === findServerWindow ) {
@@ -140,16 +145,21 @@ app.on('ready', function () {
   })
 
   ipcMain.on('findServerWindow:connect', (event, ip) => {
-    var client = new Client( ip, config.connection.socketPort, config.connection.transmitterPort );
+    client = new Client( ip, config.connection.socketPort, config.connection.transmitterPort );
     moveTo(clientWindow)
   })
+  //////////////////////////////////////////////////////////////////////////////
 
-  // get info for serverWindow
+  // serverWindow //////////////////////////////////////////////////////////////
   ipcMain.on('serverWindow', (event, arg) => {
     if( currWindow === serverWindow ) {
-      event.sender.send('serverWindow:setIp', myIp);
-      event.sender.send('serverWindow:setStatus', getStatus());
+      console.log(server.getStatus());
+      if( currWindow === serverWindow ) {
+        event.sender.send('serverWindow:setIp', myIp);
+        event.sender.send('serverWindow:setStatus', server.getStatus());
+      }
     }
   })
+  //////////////////////////////////////////////////////////////////////////////
 
 })

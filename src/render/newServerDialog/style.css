@@ -1,0 +1,13 @@
+.submitBtn {
+  width: 100px;
+  height: 30px;
+  background-color: red;
+  cursor: pointer;
+}
+
+.cancelBtn {
+  width: 100px;
+  height: 30px;
+  background-color: blue;
+  cursor: pointer;
+}

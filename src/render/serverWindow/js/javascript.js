@@ -15,7 +15,7 @@ $(document).ready(function() {
 
   function makeChart( length ) {
     areaChartData = []
-    for (var i = 0 i < length i++)
+    for (var i = 0; i < length; i++)
       areaChartData.push({
         label: 'a',
         values:[]
@@ -44,7 +44,7 @@ $(document).ready(function() {
   ipcRenderer.on('serverWindow:setStatus', (event, status) => {
 
     var newData = []
-    for (var i = 0 i < status.clients.length i++)
+    for (var i = 0; i < status.clients.length; i++)
       newData.push({time: status.timestamp, y: status.clients[i].speed})
 
     addData( newData )
@@ -61,5 +61,6 @@ $(document).ready(function() {
   ipcRenderer.once('serverWindow:setIp', (event, ip) => {
     $('#ip').html(ip)
   })
+  ipcRenderer.send('serverWindow')
 
 })

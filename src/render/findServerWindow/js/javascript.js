@@ -29,7 +29,7 @@ $(document).ready(function() {
   })
 
   $('.connectBtn').click( () => {
-    //TODO
+    ipcRenderer.send( 'findServerWindow:connect', $('.connectText').val() )
   })
 
 })
