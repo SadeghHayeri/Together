@@ -3,6 +3,45 @@ var Downloader = require('./downloader.js')
 var request = require('request')
 var io = require('socket.io-client')
 var Transmitter = require('./transmitterClient.js')
+var bonjour = require('bonjour')()
+
+class SearchNetwork {
+
+  constructor() {
+    this.serverList = []
+    this.findServers();
+    this.findInterval = setInterval(() => {this.findServers()}, 2000);
+  }
+
+  getServerList() {
+    return this.serverList.map( data => {
+      return {
+        name: data.name.substring(9),
+        ip: data.referer.address
+      }
+    })
+  }
+
+  findServers() {
+    var that = this
+    bonjour.find({ type: 'http' }, function (service) {
+
+      if( service.name.split('|')[0] === 'Together' ) {
+        var index = that.serverList.findIndex( (data) => {
+          return data.referer.address === service.referer.address
+        })
+
+        if( index === -1 )
+          that.serverList.push( service )
+        else
+          that.serverList[index] = service
+
+      }
+    })
+  }
+
+}
+
 
 class Client {
   constructor( ip, socketPort, TransmitterPort ) {
@@ -50,4 +89,6 @@ class Client {
   }
 }
 
-var client = new Client('localhost', 4444, 5555)
+module.exports = { Client, SearchNetwork }
+
+// var client = new Client('localhost', 4444, 5555)

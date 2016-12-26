@@ -5,9 +5,14 @@ var io = require('socket.io')
 var clear = require('clear')
 var http = require('http')
 var fs = require('fs')
+var bonjour = require('bonjour')()
 
 class Server {
-  constructor( socketPort, transmitterPort, chunkSize, name ) {
+  constructor( socketPort, transmitterPort, bonjourPort, chunkSize, name ) {
+
+    // advertise an HTTP server
+    bonjour.publish({ name: 'Together|' + name, type: 'http', port: bonjourPort })
+
     var server = http.createServer((req, res) => {
       res.writeHead(404, {'Content-Type': 'text/html'})
       res.end(`${name}`)
@@ -139,7 +144,7 @@ class Server {
 
 }
 
-var server = new Server(4444, 5555, 10485760, 'Sadegh')
+var server = new Server(4444, 5555, 6666, 10485760, 'Sadegh')
 server.newDownload('http://ir.30nama.download/movies/t/Tomorrowland_2015_DUBBED_1080p_x265_BluRay_30nama_30NAMA.mkv')
 
 // server.newDownload('http://googleshirazi.com/Content/images/googlelogo_color_272x92dp.png?v=3.5')
