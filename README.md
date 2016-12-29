@@ -1,6 +1,6 @@
 Together
 ======
-####Download manager for download large files from multi device
+#####Download manager for downloding large files with multi devices
 
 Installing
 ------
