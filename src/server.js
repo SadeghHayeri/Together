@@ -6,9 +6,11 @@ var clear = require('clear')
 var http = require('http')
 var fs = require('fs')
 var bonjour = require('bonjour')()
+var Datastore = require('nedb')
 
 class Server {
   constructor( socketPort, transmitterPort, bonjourPort, chunkSize, name ) {
+    this.db = new Datastore({ filename: 'together.db', autoload: true });
 
     // advertise an HTTP server
     bonjour.publish({ name: 'Together|' + name, type: 'http', port: bonjourPort })
@@ -28,11 +30,15 @@ class Server {
 
       // listen to clients!
       socket.on('imReady', (data) => {
-        var newChunk = this.getNewChunk()
-        if( newChunk ) {
-          this.addNewChunk( socket.id, newChunk )
-          socket.emit('newChunk', newChunk)
-        }
+        this.getNewChunk( socket.id, (newChunk) => {
+          console.log('***********');
+          console.log(newChunk);
+          console.log('***********');
+          if( newChunk ) {
+            this.addNewChunk( socket.id, newChunk )
+            socket.emit('newChunk', newChunk)
+          }
+        })
       })
 
       // send 'getStatus' to client to request download status!
@@ -47,12 +53,34 @@ class Server {
         this.disconnectClient(socket.id)
         console.log(`Client disconnected. (${socket.handshake.address} - ${socket.id})`)
       })
+
+      socket.on('downloadComplete', (chunk) => {
+        setDownloadComplete( chunk )
+      })
     })
 
-    new Transmitter(transmitterPort, chunkSize)
+    new Transmitter(transmitterPort, chunkSize, this.db)
     this.downloadList = []
     this.clientList = []
     this.chunkSize = chunkSize
+  }
+
+  setDownloadComplete( chunk ) {
+    var that = this
+    db.findOne( { _id: data._id } , function (err, dbData) {
+      if(err || !dbData) {
+        console.log('error in receive file!');
+      }
+
+      var chunkIndex = dbData.parts.findIndex((el) => {
+        return ( el.partNum == data.partNum )
+      })
+
+      dbData.parts[chunkIndex].done = true
+
+      that.db.update({'_id': data._id}, { $set: { parts: dbData.parts } })
+      that.db.persistence.compactDatafile()
+    })
   }
 
   getStatus() {
@@ -91,49 +119,73 @@ class Server {
   newDownload( url ) {
     request.head({url:url}, (error, response, body) => {
       if( !error && response.headers['content-length'] !== undefined ) {
+
         console.log(`Size: ${response.headers['content-length']} (${Math.round(response.headers['content-length']/1048576)}Mb)`)
         var download = {
           url: url,
           size: response.headers['content-length'],
-          needToDownload: response.headers['content-length'],
-          lastPart: 0,
-          partsCount: Math.ceil( response.headers['content-length'] / this.chunkSize ),
           parts: []
         }
-        this.downloadList.push( download )
+        this.db.insert( download, (err, key) => {
+
+          if(err) {
+            console.log('there is an error with downloader!');
+          } else {
+            var partsCount = Math.ceil( response.headers['content-length'] / this.chunkSize )
+            var downloaded = 0
+            for (var i = 0; i < partsCount; i++) {
+              var packetSize = (download.size - downloaded > this.chunkSize)? this.chunkSize : (download.size - downloaded)
+              var chunk = {
+                partNum: i,
+                startRange: downloaded,
+                endRange: downloaded + packetSize,
+                workerId: 'undefined',
+                done: false,
+                transferred: false
+              }
+              this.db.update({ _id: key._id }, { $push: { parts: chunk } });
+              downloaded += packetSize + 1
+            }
+          }
+          this.db.persistence.compactDatafile()
+
+          console.log(`newDownload added! (${key._id})`);
+        })
       } else {
         console.log('error!')
       }
     })
   }
 
-  getNewChunk() {
-    for (var i = 0; i < this.downloadList.length; i++) {
-      if( this.downloadList[i].needToDownload !== 0 ) {
+  getNewChunk(workerId, callback) {
 
-        var packetSize = (this.downloadList[i].needToDownload>this.chunkSize)? this.chunkSize : this.downloadList[i].needToDownload
-        var chunk = {
-          url: this.downloadList[i].url,
-          startRange: this.downloadList[i].lastPart * this.chunkSize,
-          endRange: this.downloadList[i].lastPart * this.chunkSize + packetSize - ( (this.downloadList[i].needToDownload>this.chunkSize)? 1 : 0 ),
-          partNum: this.downloadList[i].lastPart
-        }
-
-        this.downloadList[i].needToDownload -= packetSize
-        this.downloadList[i].lastPart++
-
-        this.downloadList[i].parts.push({
-          partNum: this.downloadList[i].lastPart,
-          startRange:this.downloadList[i].lastPart * this.chunkSize,
-          endRange: this.downloadList[i].lastPart * this.chunkSize + packetSize - ( (this.downloadList[i].needToDownload>this.chunkSize)? 1 : 0 ),
-          receive: false
-        })
-
-        return chunk
+    var that = this
+    this.db.findOne( { 'parts.workerId': 'undefined', 'parts.done': false }, function (err, data) {
+      if(err || !data) {
+        return callback(false)
       }
-    }
 
-    return false
+      var chunkIndex = data.parts.findIndex((el) => {
+        return (el.workerId) == 'undefined' && (el.done == false)
+      })
+
+      var chunk = {
+        _id: data._id,
+        url: data.url,
+        partNum: data.parts[chunkIndex].partNum,
+        startRange: data.parts[chunkIndex].startRange,
+        endRange: data.parts[chunkIndex].endRange
+      }
+
+      data.parts[chunkIndex].workerId = workerId
+      // var index = 'parts.' + chunkIndex.toString() + '.workerId'
+      that.db.update({'_id': data._id}, { $set: { parts: data.parts } })
+      that.db.persistence.compactDatafile()
+
+      return callback(chunk)
+
+    })
+
   }
 
   newConnection( id ) {
@@ -146,6 +198,25 @@ class Server {
   }
 
   disconnectClient( id ) {
+
+    var that = this
+    this.db.findOne( { $or: [{ 'parts.workerId': id, 'parts.done': false }, { 'parts.workerId': id, 'parts.done': true, 'parts.transferred': false }] } , function (err, data) {
+      if(err || !data) {
+        return callback(false)
+      }
+
+      var chunkIndex = data.parts.findIndex((el) => {
+        return ( (el.workerId) == id && (el.done == false) ) || ( (el.workerId) == id && (el.done == true) && (el.transferred == false) )
+      })
+
+      data.parts[chunkIndex].workerId = 'undefined'
+      data.parts[chunkIndex].done = false
+      data.parts[chunkIndex].transferred = false
+
+      that.db.update({'_id': data._id}, { $set: { parts: data.parts } })
+      that.db.persistence.compactDatafile()
+    })
+
     for (var i = 0; i < this.clientList.length; i++) {
       if( this.clientList[i].id === id ) {
 

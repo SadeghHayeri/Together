@@ -158,7 +158,7 @@ app.on('ready', function () {
   // serverWindow //////////////////////////////////////////////////////////////
   ipcMain.on('serverWindow', (event, arg) => {
     if( currWindow === serverWindow ) {
-      console.log(server.getStatus());
+      // console.log(server.getStatus());
       if( currWindow === serverWindow ) {
         event.sender.send('serverWindow:setIp', myIp);
         event.sender.send('serverWindow:setStatus', server.getStatus());

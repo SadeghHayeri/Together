@@ -59,7 +59,7 @@ class Client {
   connect( serverInfo ) {
     var socket = io.connect(`${serverInfo.ip}:${serverInfo.port}`, {reconnect: true})
 
-    var that = this  //TODO: do this in better way
+    var that = this
     socket.on('connect', function(socket) {
       this.on('newChunk', (chunk) => {
 
@@ -76,13 +76,13 @@ class Client {
         var downloader = new Downloader( chunk.url, chunk.startRange, chunk.endRange, folderName, chunk.partNum, () => {
           that.inDownload = false
           that.downloads[that.downloads.length-1].complete = true
-          that.transmitter.sendFile(folderName, chunk.partNum)
+          this.emit('downloadComplete', chunk)
+          that.transmitter.sendFile(folderName, chunk._id, chunk.partNum)
           that.checkDownload(this)
         })
         downloader.start()
 
         this.on('getStatus', () => {
-          console.log(downloader.status())
           this.emit( 'status', downloader.status() )
         })
 

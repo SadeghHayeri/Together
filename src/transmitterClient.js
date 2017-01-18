@@ -10,9 +10,9 @@ class TransmitterClient {
     TransmitterClient.socket = socket;
   }
 
-  sendFile( fileName, partNum ) {
+  sendFile( fileName, _id,  partNum ) {
     var stream = ss.createStream();
-    ss(TransmitterClient.socket).emit('sendFile', stream, {fileName: fileName, partNum: partNum});
+    ss(TransmitterClient.socket).emit('sendFile', stream, {fileName: fileName, _id: _id, partNum: partNum});
     var f = fs.createReadStream(`Downloads/tmp/${fileName}/${fileName}.part${partNum}`).pipe(stream);
     f.on('finish',() => {
       fs.unlink(`Downloads/tmp/${fileName}/${fileName}.part${partNum}`, (err) => {

@@ -8,7 +8,7 @@ var progress = require('progress-stream');
 
 class Transmitter {
 
-  constructor( portNum, chunkSize ) {
+  constructor( portNum, chunkSize, db ) {
 
     var io = socket.listen(portNum);
     io.on('connection', function(socket) {
@@ -29,8 +29,26 @@ class Transmitter {
           Transmitter.status = progress;
         });
 
-        stream.pipe(str)
-              .pipe(fs.createWriteStream(`Downloads/${data.fileName}/${data.fileName}.part${data.partNum}`));
+        var stream = stream.pipe(str).pipe(fs.createWriteStream(`Downloads/${data.fileName}/${data.fileName}.part${data.partNum}`));
+        stream.on('finish', () => {
+
+          var that = this
+          db.findOne( { _id: data._id } , function (err, dbData) {
+            if(err || !dbData) {
+              console.log('error in receive file!');
+            }
+
+            var chunkIndex = dbData.parts.findIndex((el) => {
+              return ( el.partNum == data.partNum )
+            })
+
+            dbData.parts[chunkIndex].transferred = true
+
+            that.db.update({'_id': data._id}, { $set: { parts: dbData.parts } })
+            that.db.persistence.compactDatafile()
+          })
+
+        })
 
       });
 
