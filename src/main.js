@@ -11,7 +11,7 @@ var myIp = require('ip').address()
 var {Client, SearchNetwork} = require('./client.js')
 var Server = require('./server.js')
 
-var config = JSON.parse(fs.readFileSync('config.json', 'utf8'))
+var config = require('./config.js')
 
 var mainWindow = null
 var findServerWindow = null
