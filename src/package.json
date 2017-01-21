@@ -5,6 +5,7 @@
   "dependencies": {
     "bonjour": "^3.5.0",
     "clear": "0.0.1",
+    "concat-files": "^0.1.1",
     "electron": "1.4.13",
     "ip": "^1.1.4",
     "nedb": "^1.8.0",

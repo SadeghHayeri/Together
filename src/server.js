@@ -24,6 +24,7 @@ class Server {
     console.log('server is running on port:' + socketPort)
 
     // Add a connect listener
+    var that = this
     io.sockets.on('connection', (socket) => {
       console.log(`Client connected. (${socket.handshake.address} - ${socket.id})`)
       this.newConnection(socket.id)
@@ -55,7 +56,7 @@ class Server {
       })
 
       socket.on('downloadComplete', (chunk) => {
-        setDownloadComplete( chunk )
+        that.setDownloadComplete( chunk )
       })
     })
 
@@ -65,9 +66,9 @@ class Server {
     this.chunkSize = chunkSize
   }
 
-  setDownloadComplete( chunk ) {
+  setDownloadComplete( data ) {
     var that = this
-    db.findOne( { _id: data._id } , function (err, dbData) {
+    this.db.findOne( { _id: data._id } , function (err, dbData) {
       if(err || !dbData) {
         console.log('error in receive file!');
       }

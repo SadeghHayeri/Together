@@ -44,8 +44,8 @@ class Transmitter {
 
             dbData.parts[chunkIndex].transferred = true
 
-            that.db.update({'_id': data._id}, { $set: { parts: dbData.parts } })
-            that.db.persistence.compactDatafile()
+            db.update({'_id': data._id}, { $set: { parts: dbData.parts } })
+            db.persistence.compactDatafile()
           })
 
         })
