@@ -2,6 +2,13 @@ Downloads
 .DS_Store
 together.db
 
+Together-darwin-x64
+Together-linux-ia32
+Together-linux-x64
+Together-mas-x64
+Together-win32-ia32
+Together-linux-armv7l
+Together-win32-x64
 
 # Logs
 logs
