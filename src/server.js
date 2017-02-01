@@ -84,6 +84,15 @@ class Server {
     })
   }
 
+  getDownloadHistory( callback ) {
+    this.db.find( {}, (err, data) => {
+      if(err)
+        throw "ERROR!"
+      else
+        callback(data)
+    })
+  }
+
   getStatus() {
     var status = {}
 
@@ -125,7 +134,9 @@ class Server {
         var download = {
           url: url,
           size: response.headers['content-length'],
-          parts: []
+          parts: [],
+          pause: false,
+          complete: false
         }
         this.db.insert( download, (err, key) => {
 
