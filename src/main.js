@@ -1,5 +1,7 @@
 var path = require('path')
 const electron = require('electron')
+const prettyBytes = require('pretty-bytes');
+const limit = require('limit-string-length');
 
 const BrowserWindow = electron.BrowserWindow
 const {ipcMain} = require('electron')
@@ -18,7 +20,7 @@ var findServerWindow = null
 var serverWindow = null
 var clientWindow = null
 var newServerDialog = null
-var newDownloadDialog = null
+var downloadHistoryDialog = null
 
 var currWindow = null
 
@@ -63,9 +65,12 @@ function createWindows() {
   newServerDialog = new BrowserWindow(windowOptions)
   newServerDialog.loadURL(path.join('file://', __dirname, 'render/newServerDialog/index.html'))
 
+  windowOptions.width = 680
+  windowOptions.height = 400
   windowOptions.parent = serverWindow
-  newDownloadDialog = new BrowserWindow(windowOptions)
-  newDownloadDialog.loadURL(path.join('file://', __dirname, 'render/newDownloadDialog/index.html'))
+  windowOptions.modal = true
+  downloadHistoryDialog = new BrowserWindow(windowOptions)
+  downloadHistoryDialog.loadURL(path.join('file://', __dirname, 'render/downloadHistoryDialog/index.html'))
 
   // close windows
   mainWindow.on('closed', function () {mainWindow = null})
@@ -73,7 +78,7 @@ function createWindows() {
   serverWindow.on('closed', function () {serverWindow = null})
   clientWindow.on('closed', function () {clientWindow = null})
   newServerDialog.on('closed', function () {newServerDialog = null})
-  newDownloadDialog.on('closed', function () {newDownloadDialog = null})
+  downloadHistoryDialog.on('closed', function () {downloadHistoryDialog = null})
 
 }
 
@@ -140,7 +145,6 @@ app.on('ready', function () {
   })
   //////////////////////////////////////////////////////////////////////////////
 
-
   // findServerWindow //////////////////////////////////////////////////////////
   var searchNetwork = new SearchNetwork()
   ipcMain.on('findServerWindow', (event, arg) => {
@@ -168,22 +172,59 @@ app.on('ready', function () {
 
   ipcMain.on('serverWindow:newDownload', (event, arg) => {
     if( currWindow === serverWindow ) {
-      newDownloadDialog.show()
+      downloadHistoryDialog.show()
     }
   })
   //////////////////////////////////////////////////////////////////////////////
 
-  // newDownloadDialog /////////////////////////////////////////////////////////
-  ipcMain.on('newDownloadDialog:addUrl', (event, url) => {
+  // downloadHistoryDialog /////////////////////////////////////////////////////
+  ipcMain.on('downloadHistoryDialog', (event, url) => {
     if( currWindow === serverWindow ) {
-      server.newDownload(url)
-      newDownloadDialog.hide()
+
+      var status = []
+      server.getDownloadHistory((data) => {
+        for (var i = 0; i < data.length; i++) {
+
+          var download = {}
+          download._id = data[i]._id
+          download.name = limit( path.basename(data[i].url), 40);
+          download.name += (data[i].size >= 40) ? "..." : ""
+          download.status = (data[i].complete)? "Complete" : ( (data[i].pause)? "Pause" : "Downloading" )
+          download.speed = download.status //TODO: add speed for it
+          download.percent = 0.0
+
+          for (var j = 0; j < data[i].parts.length; j++)
+            if( data[i].parts[j].done && data[i].parts[j].transferred )
+              download.percent++
+
+          download.percent = download.percent / data[i].parts.length
+          if( download.status == "Complete" )
+            download.percentString = prettyBytes( Number(download.percent) )
+          else
+            download.percentString = prettyBytes( Number(download.percent * data[i].size) ) + " of " + prettyBytes( Number(data[i].size) )
+
+          status.push( download )
+
+        }
+
+        console.log(status);
+        event.sender.send( 'downloadHistoryDialog:downloadHistory', status );
+      })
+
     }
   })
 
-  ipcMain.on('newDownloadDialog:cancel', (event, arg) => {
+  ipcMain.on('downloadHistoryDialog:addUrl', (event, url) => {
     if( currWindow === serverWindow ) {
-      newDownloadDialog.hide()
+      console.log(url);
+      server.newDownload(url)
+      downloadHistoryDialog.hide()
+    }
+  })
+
+  ipcMain.on('downloadHistoryDialog:cancel', (event, arg) => {
+    if( currWindow === serverWindow ) {
+      downloadHistoryDialog.hide()
     }
   })
   //////////////////////////////////////////////////////////////////////////////
