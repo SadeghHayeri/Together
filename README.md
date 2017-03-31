@@ -1,8 +1,6 @@
 Together
 ======
-# ![pageres](./src/render/mainWindow/logo.png)	
-
-Download manager for downloding large files with multi devices
+# ![pageres](demo.png)	
 
 Installing
 ------
