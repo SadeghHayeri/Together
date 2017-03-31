@@ -12,6 +12,7 @@ Developing
 After cloning project run the following command in 'src' directory to get dependencies:
 ```bash
 $ npm install
+$ node_modules/electron/cli.js .
 ```
 
 
